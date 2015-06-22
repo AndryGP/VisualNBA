@@ -1,44 +1,64 @@
 var http = require('http'),
     fs = require('fs'),
-    LineByLineReader = require('line-by-line'),
-    url = require('url');
-
-var obj = [];
-    lrPlayers = new LineByLineReader('/Volumes/MacbookHD/Documenti/MYSTUFF/RM3/2nd/VisualizzazionedelleInformazioni/VisualNBA/salary.txt');
-	lrPlayers.on('error', function(err) {
-	    // 'err' contains error object
-	});
-
-	var players = [];
-	lrPlayers.on('line', function(line) {
-		var str = line;
-		var arr = str.split("\t");
-	});
-
-
-
-	lrPlayers.on('end', function() {
-	    console.log("finish all players");
-
-	});
-
-
+    url = require('url'),
+    Converter=require("csvtojson").core.Converter;
 
 var teams = [];
-//Converter Class 
-var Converter=require("csvtojson").core.Converter;
+var salaries = [];
+var stats = [];
  
-var csvFileName="./teams.csv";
-var fileStream=fs.createReadStream(csvFileName);
+var salaryFile="./salary.csv";
+var statsFile = "./team_season2000.csv";
+var teamsFile = "./teams.csv";
+
+var salaryFileStream = fs.createReadStream(salaryFile);
+var statsFileStream = fs.createReadStream(statsFile);
+var teamsFilStream = fs.createReadStream(teamsFile);
+
 //new converter instance 
-var csvConverter = new Converter({constructResult:true});
+var salaryCsvConv = new Converter({constructResult:true, delimiter: ";"});
+var statsCsvConv = new Converter({constructResult:true});
+var teamsCsvConv = new Converter({constructResult:true});
+
+
 //end_parsed will be emitted once parsing finished 
-csvConverter.on("end_parsed",function(jsonObj){
-	for (team in jsonObj) {
-		console.log(jsonObj[team]);
+salaryCsvConv.on("end_parsed",function(jsonObj){
+	for (item in jsonObj) {
+		var salary = {};
+		salary.team = jsonObj[item].TEAM;
+		salary.total = jsonObj[item].TOTAL;
+		salary.avg = jsonObj[item].AVG;
+		salary.year = jsonObj[item].YEAR;
+		salaries.push(salary);
 
 	}
+	// console.log(salaries); 
+	parseTeams();
 });
- 
+
+
+
+function parseTeams() {
+	teamsCsvConv.on("end_parsed", function(jsonObj) {
+		for(item in jsonObj) {
+			if(jsonObj[item].leag === "N") {
+				var team = {};
+				team.name = jsonObj[item].team;
+				team.franchige = jsonObj[item].name;
+				console.log(team);
+				teams.push(team);
+			}
+		}
+		mergeTeams2Salaries();
+	});
+}
+
+
+function mergeTeams2Salaries() {
+	for(var i = 0; i<)
+}
+
+
 //read from file 
-fileStream.pipe(csvConverter);
+salaryFileStream.pipe(salaryCsvConv);
+teamsFilStream.pipe(teamsCsvConv);
