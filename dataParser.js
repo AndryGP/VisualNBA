@@ -43,6 +43,7 @@ function parseStats() {
 			stat.year = jsonObj[item].year;
 			stat.team_wins = jsonObj[item].won;
 			stat.team_loss = jsonObj[item].lost;
+			stat.team_points = jsonObj[item].o_pts;
 			stat.ratio = Math.round((stat.team_wins/(stat.team_wins + stat.team_loss))*1000) / 1000;
 			stats.push(stat);
 		}
