@@ -2,6 +2,7 @@ var http = require('http'),
     fs = require('fs'),
     url = require('url'),
     Converter=require("csvtojson").core.Converter;
+var tsv = require('tsv')	;
 
 var salaries = [];
 var stats = [];
@@ -22,9 +23,17 @@ var statsCsvConv = new Converter({constructResult:true});
 salaryCsvConv.on("end_parsed",function(jsonObj){
 	for (item in jsonObj) {
 		var salary = {};
+		var find = ',';
+		var re = new RegExp(find, 'g');
+		var avg = jsonObj[item].AVG.replace(re, '');
+		avg = avg.replace('$ ', '');
+		var tot = jsonObj[item].TOTAL.replace(re, '');
+		tot = tot.replace('$ ', '');
+		salary.avgFormat = jsonObj[item].AVG;
+		salary.totFormat = jsonObj[item].TOTAL;
 		salary.team = jsonObj[item].TEAM;
-		salary.total = jsonObj[item].TOTAL;
-		salary.avg = jsonObj[item].AVG;
+		salary.total = tot;
+		salary.avg = avg;
 		salary.year = jsonObj[item].YEAR;
 		salary.id = jsonObj[item].ID;
 		salaries.push(salary);
@@ -60,6 +69,8 @@ function dataCrossing() {
 			if(salaries[i].id === stats[j].team_id && salaries[i].year === stats[j].year) {
 				stats[j].salaryTot = salaries[i].total;
 				stats[j].salaryAvg = salaries[i].avg;
+				stats[j].salaryAvgFormat = salaries[i].avgFormat;
+				stats[j].salaryTotFormat = salaries[i].totFormat;
 			}
 		}
 	}
@@ -68,9 +79,22 @@ function dataCrossing() {
 			finalStats.push(stats[j]);
 		}
 	}
-	console.log(finalStats);
+	json2tsv();
 }
-		
+
+
+function json2tsv() {
+	var tsvFile = tsv.TSV.stringify(finalStats);
+	var wstream_out1 = fs.createWriteStream('/Volumes/MacbookHD/Documenti/MYSTUFF/RM3/2nd/VisualizzazionedelleInformazioni/VisualNBA/nbaData.tsv');
+
+	wstream_out1.write(tsvFile);
+
+}
+
+
+
+
+
 
 //read from file 
 salaryFileStream.pipe(salaryCsvConv);
