@@ -65,9 +65,9 @@ var tooltip = d3.select("body").append("div")
     .attr("class", "tooltip")
     .style("opacity", 0);
 
-var line = d3.svg.line()
-    .x(function(d) { return x(d.year); })
-    .y(function(d) { return y(d.ratio); });
+// var line = d3.svg.line()
+//     .x(function(d) { return x(d.year); })
+//     .y(function(d) { return y(d.ratio); });
 
 d3.tsv("./nbaData.tsv", function(error, data) {
   if (error) throw error;
@@ -78,7 +78,7 @@ d3.tsv("./nbaData.tsv", function(error, data) {
     d.salaryTot = +d.salaryTot;
   });
 
-  x.domain(d3.extent(data, function(d) { return d.year; })).nice();
+  x.domain(d3.extent(data, function(d) { return d.salaryTot; })).nice();
   y.domain(d3.extent(data, function(d) { return d.ratio; })).nice();
 
   svg.append("g")
@@ -90,7 +90,7 @@ d3.tsv("./nbaData.tsv", function(error, data) {
       .attr("x", width)
       .attr("y", -6)
       .style("text-anchor", "end")
-      .text("Years");
+      .text("Team Payroll");
 
   svg.append("g")
       .attr("class", "y axis")
@@ -107,9 +107,13 @@ d3.tsv("./nbaData.tsv", function(error, data) {
       .data(data)
     .enter().append("circle")
       .attr("class", "dot")
-      .attr("r", function(d) {return (d.salaryTot/20000000);})
-      .attr("cx", function(d) { return x(d.year); })
-      .attr("cy", function(d) { return y(d.ratio); })
+      .attr("r", 5)
+      .attr("cx", function(d) {
+        if(d.year === 2009) return x(d.salaryTot);
+        else return;})
+      .attr("cy", function(d) {
+        if(d.year === 2009) return y(d.ratio);
+        else return;})
       .style("fill", function(d) { return color(d.team_id); })
       .on("mouseover", function(d) {
           tooltip.transition()
@@ -119,12 +123,7 @@ d3.tsv("./nbaData.tsv", function(error, data) {
           + " Average Payroll: " + d.salaryAvgFormat + "")
                .style("left", (d3.event.pageX + 5) + "px")
                .style("top", (d3.event.pageY - 28) + "px");
-      })
-
-  svg.append("path")
-      .datum(data)
-      .attr("class", "line")
-      .attr("d", line);
+      });
 
   var legend = svg.selectAll(".legend")
       .data(color.domain())

@@ -8,8 +8,8 @@ var salaries = [];
 var stats = [];
 var finalStats = [];
  
-var salaryFile="./salary.csv";
-var statsFile = "./team_season2000.csv";
+var salaryFile="./dataset/salary.csv";
+var statsFile = "./dataset/team_season2000.csv";
 
 var salaryFileStream = fs.createReadStream(salaryFile);
 var statsFileStream = fs.createReadStream(statsFile);
@@ -86,8 +86,9 @@ function dataCrossing() {
 function json2tsv() {
 	var tsvFile = tsv.TSV.stringify(finalStats);
 	var wstream_out1 = fs.createWriteStream('/Volumes/MacbookHD/Documenti/MYSTUFF/RM3/2nd/VisualizzazionedelleInformazioni/VisualNBA/nbaData.tsv');
-
+	var wstream_out2 = fs.createWriteStream('/Volumes/MacbookHD/Documenti/MYSTUFF/RM3/2nd/VisualizzazionedelleInformazioni/VisualNBA/nbaData.json');
 	wstream_out1.write(tsvFile);
+	wstream_out2.write(JSON.stringify(finalStats));
 
 }
 
